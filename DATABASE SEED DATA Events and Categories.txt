@@ -1,0 +1,113 @@
+ CREATE DATABASE RaceDayDB;
+
+ --Roles
+ CREATE TABLE dbo.Roles (
+    RoleID      INT IDENTITY(1,1) PRIMARY KEY,
+    RoleName    VARCHAR(20) NOT NULL UNIQUE
+);
+
+--Users
+CREATE TABLE dbo.Users (
+    UserID          INT IDENTITY(1,1) PRIMARY KEY,
+    RoleID          INT NOT NULL,
+    FullName        VARCHAR(100) NOT NULL,
+    Email           VARCHAR(150) NOT NULL UNIQUE,
+    PasswordHash    VARCHAR(255) NOT NULL,
+    PhoneNumber     VARCHAR(20) NULL,
+    CreatedAt       DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleID)
+        REFERENCES dbo.Roles(RoleID)
+);
+
+--Events
+CREATE TABLE dbo.Events (
+    EventID         INT IDENTITY(1,1) PRIMARY KEY,
+    OrganiserID     INT NOT NULL,
+    EventName       VARCHAR(150) NOT NULL,
+    EventDate       DATE NOT NULL,
+    Location        VARCHAR(150) NOT NULL,
+    RouteInfo       VARCHAR(255) NULL,
+    Description     VARCHAR(500) NULL,
+    Status          VARCHAR(20) NOT NULL DEFAULT 'Planned',
+    CreatedAt       DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Events_Users FOREIGN KEY (OrganiserID)
+        REFERENCES dbo.Users(UserID)
+);
+
+--Categories
+CREATE TABLE dbo.Categories (
+    CategoryID      INT IDENTITY(1,1) PRIMARY KEY,
+    EventID         INT NOT NULL,
+    CategoryName    VARCHAR(50) NOT NULL,
+    DistanceKm      DECIMAL(5,2) NOT NULL,
+    MaxParticipants INT NOT NULL,
+    EntryFee        DECIMAL(8,2) NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Categories_Events FOREIGN KEY (EventID)
+        REFERENCES dbo.Events(EventID)
+);
+
+ -- Enrolments
+CREATE TABLE dbo.Enrolments (
+    EnrolmentID     INT IDENTITY(1,1) PRIMARY KEY,
+    ParticipantID   INT NOT NULL,
+    CategoryID      INT NOT NULL,
+    BibNumber       VARCHAR(10) NOT NULL UNIQUE,
+    EnrolmentDate   DATETIME NOT NULL DEFAULT GETDATE(),
+    Status          VARCHAR(20) NOT NULL DEFAULT 'Confirmed',
+    CONSTRAINT FK_Enrolments_Users FOREIGN KEY (ParticipantID)
+        REFERENCES dbo.Users(UserID),
+    CONSTRAINT FK_Enrolments_Categories FOREIGN KEY (CategoryID)
+        REFERENCES dbo.Categories(CategoryID)
+);
+
+--Results
+CREATE TABLE dbo.Results (
+    ResultID            INT IDENTITY(1,1) PRIMARY KEY,
+    EnrolmentID         INT NOT NULL UNIQUE,
+    FinishTimeSeconds   INT NULL,
+    OverallPosition     INT NULL,
+    CategoryPosition    INT NULL,
+    Status              VARCHAR(20) NOT NULL DEFAULT 'Finished',
+    CONSTRAINT FK_Results_Enrolments FOREIGN KEY (EnrolmentID)
+        REFERENCES dbo.Enrolments(EnrolmentID)
+);
+
+-- SEED DATA
+
+-- Roles
+INSERT INTO dbo.Roles (RoleName) VALUES
+('Organiser'),
+('Participant');
+
+SELECT * FROM dbo.Roles;
+
+-- Users
+INSERT INTO dbo.Users (RoleID, FullName, Email, PasswordHash, PhoneNumber) VALUES
+(1, 'Thabo Mokoena',   'thabomokoena@raceday.co.za',   'HASHED_PWD_1', '0821234567'),  -- Organiser
+(1, 'Sarah van Wyk',   'sarahvanwyk@raceday.co.za',    'HASHED_PWD_2', '0827654321'),  -- Organiser
+(2, 'Lindiwe Dlamini', 'lindiwedlamini@gmail.com',   'HASHED_PWD_3', '0731112222'),  -- Participant
+(2, 'James Botha',     'jamesbotha@gmail.com',       'HASHED_PWD_4', '0739998888');  -- Participant
+
+SELECT * FROM dbo.Users;
+
+-- Events
+INSERT INTO dbo.Events (OrganiserID, EventName, EventDate, Location, RouteInfo, Description, Status) VALUES
+(1, 'Pretoria Park Run Challenge', '2026-10-10', 'Pretoria, Gauteng',
+    'Flat loop around Groenkloof Nature Reserve', 'A community park run with multiple distance options.', 'Planned'),
+(2, 'Cape Coastal Cycle Tour', '2026-11-07', 'Cape Town, Western Cape',
+    'Coastal route from Sea Point to Hout Bay', 'Scenic cycling event along the Atlantic seaboard.', 'Planned'),
+(2, 'Soweto Heritage Marathon', '2026-12-05', 'Soweto, Gauteng',
+    'Loop route through Vilakazi Street and Orlando Stadium', 'A marathon celebrating local running heritage.', 'Planned');
+
+    SELECT * FROM dbo.Events;
+
+-- Categories
+INSERT INTO dbo.Categories (EventID, CategoryName, DistanceKm, MaxParticipants, EntryFee) VALUES
+(1, '5km Fun Run',   5.0,  200, 50.00),
+(1, '10km Run',      10.0, 150, 80.00),
+(2, '40km Cycle',    40.0, 100, 150.00),
+(2, '80km Cycle',    80.0, 80,  250.00),
+(3, '21km Half Marathon', 21.1, 250, 120.00),
+(3, '42km Marathon',      42.2, 150, 180.00);
+
+SELECT * FROM dbo.Categories;
