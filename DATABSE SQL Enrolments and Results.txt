@@ -1,0 +1,25 @@
+ -- Enrolments
+CREATE TABLE dbo.Enrolments (
+    EnrolmentID     INT IDENTITY(1,1) PRIMARY KEY,
+    ParticipantID   INT NOT NULL,
+    CategoryID      INT NOT NULL,
+    BibNumber       VARCHAR(10) NOT NULL UNIQUE,
+    EnrolmentDate   DATETIME NOT NULL DEFAULT GETDATE(),
+    Status          VARCHAR(20) NOT NULL DEFAULT 'Confirmed',
+    CONSTRAINT FK_Enrolments_Users FOREIGN KEY (ParticipantID)
+        REFERENCES dbo.Users(UserID),
+    CONSTRAINT FK_Enrolments_Categories FOREIGN KEY (CategoryID)
+        REFERENCES dbo.Categories(CategoryID)
+);
+
+--Results
+CREATE TABLE dbo.Results (
+    ResultID            INT IDENTITY(1,1) PRIMARY KEY,
+    EnrolmentID         INT NOT NULL UNIQUE,
+    FinishTimeSeconds   INT NULL,
+    OverallPosition     INT NULL,
+    CategoryPosition    INT NULL,
+    Status              VARCHAR(20) NOT NULL DEFAULT 'Finished',
+    CONSTRAINT FK_Results_Enrolments FOREIGN KEY (EnrolmentID)
+        REFERENCES dbo.Enrolments(EnrolmentID)
+);
