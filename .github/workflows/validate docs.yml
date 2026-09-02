@@ -1,0 +1,33 @@
+name: Validate Docs Folder
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate /docs folder exists
+        run: |
+          if [ ! -d "docs" ]; then
+            echo "Error: /docs folder does not exist!"
+            exit 1
+          fi
+          echo "Success: /docs folder exists."
+
+      - name: Validate /docs folder is not empty
+        run: |
+          if [ -z "$(ls -A docs)" ]; then
+            echo "Error: /docs folder is empty!"
+            exit 1
+          fi
+          echo "Success: /docs folder contains files."
+
+      - name: List files in /docs
+        run: ls -la docs/
