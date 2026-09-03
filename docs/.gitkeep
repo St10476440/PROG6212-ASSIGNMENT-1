@@ -1,1 +1,14 @@
-
+git clone https://github.com/St10476440/PROG6212-ASSIGNMENT-1.git
+cd PROG6212-ASSIGNMENT-1
+mkdir docs
+git mv "ERD DIAGRAM .docx" docs/
+git mv "ERD PLANNING .docx" docs/
+git mv "Error Handling & Validation.docx" docs/
+git mv "Event Categories Management.docx" docs/
+git mv "Event Details & Management.docx" docs/
+git mv "Organiser Enrolment Management....docx" docs/
+git mv "Participant Enrolment.docx" docs/
+# repeat git mv for any other .docx / .md documentation files
+git add .
+git commit -m "Move documentation into docs folder"
+git push
